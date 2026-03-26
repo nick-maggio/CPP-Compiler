@@ -18,10 +18,16 @@ enum class TokenType {
 
     // Keywords
     KeywordInt,
+    KeywordDouble,
+    KeywordString,
     KeywordIf,
     KeywordElse,
     KeywordCout,
     KeywordReturn,
+    KeywordInclude,
+    KeywordUsing,
+    KeywordNamespace,
+
 
     // Operators
     Equals,          // =
@@ -51,10 +57,15 @@ static const std::unordered_map<TokenType, std::string> TOKEN_NAMES = {
     { TokenType::Number,        "Number"        },
     { TokenType::StringLiteral, "StringLiteral" },
     { TokenType::KeywordInt,    "KeywordInt"    },
+    { TokenType::KeywordDouble, "KeywordDouble" },
+    { TokenType::KeywordString, "KeywordString" },
     { TokenType::KeywordIf,     "KeywordIf"     },
     { TokenType::KeywordElse,   "KeywordElse"   },
     { TokenType::KeywordCout,   "KeywordCout"   },
     { TokenType::KeywordReturn,  "KeywordReturn" },
+    { TokenType::KeywordInclude, "KeywordInclude" },
+    { TokenType::KeywordUsing,   "KeywordUsing"   },
+    { TokenType::KeywordNamespace, "KeywordNamespace" },
     { TokenType::Equals,        "Equals"        },
     { TokenType::ComprEquals,   "ComprEquals"   },
     { TokenType::NotEquals,     "NotEquals"     },
@@ -76,10 +87,15 @@ static const std::unordered_map<TokenType, std::string> TOKEN_NAMES = {
 
 static const std::unordered_map<std::string, TokenType> KEYWORDS = {
     { "int",  TokenType::KeywordInt  },
+    { "double", TokenType::KeywordDouble },
+    { "string", TokenType::KeywordString },
     { "if",   TokenType::KeywordIf   },
     { "else", TokenType::KeywordElse },
     { "cout", TokenType::KeywordCout },
-    { "return", TokenType::KeywordInt } 
+    { "return", TokenType::KeywordReturn },
+    { "#include", TokenType::KeywordInclude },
+    { "using", TokenType::KeywordUsing },
+    { "namespace", TokenType::KeywordNamespace },
 };
 
 std::string tokenTypeName(TokenType type) {
@@ -219,8 +235,18 @@ private:
 
     Token lexNumber() {
         size_t start = pos;
+        // Consume integer part
         while (!isAtEnd() && std::isdigit((unsigned char)peek()))
             advance();
+
+        
+        //  We consume '.' and any following digits to support all decimal forms.
+        if (!isAtEnd() && peek() == '.') {
+            advance(); // consume '.'
+            while (!isAtEnd() && std::isdigit((unsigned char)peek()))
+                advance(); // consume fractional digits if any (handles trailing-dot examples like 5.)
+        }
+
         return make(TokenType::Number, src.substr(start, pos - start));
     }
 
@@ -230,7 +256,7 @@ private:
 
         while (!isAtEnd() && peek() != '"') {
             if (peek() == '\\') {      // basic escape handling
-                advance();
+                advance();             // consume backslash
                 switch (peek()) {
                     case 'n':  value += '\n'; break;
                     case 't':  value += '\t'; break;
@@ -244,7 +270,10 @@ private:
             advance();
         }
 
-        if (!isAtEnd()) advance(); // consume closing "
+
+        if (isAtEnd()) return make(TokenType::Invalid, "Unterminated string literal");
+
+        advance(); // consume closing "
         return make(TokenType::StringLiteral, value);
     }
 
@@ -254,8 +283,8 @@ private:
         char c = peek();
 
         if (std::isalpha((unsigned char)c) || c == '_') return lexIdentifierOrKeyword();
-        if (std::isdigit((unsigned char)c))              return lexNumber();
-        if (c == '"')                                    return lexString();
+        if (std::isdigit((unsigned char)c) || ((c == '.') && std::isdigit((unsigned char)peek(1)))) return lexNumber();
+        if (c == '"') return lexString();
 
         // Single- or double-character punctuation
         advance(); // consume the leading character
@@ -280,6 +309,18 @@ private:
             case ')': return make(TokenType::RParen,    ")");
             case '{': return make(TokenType::LBrace,    "{");
             case '}': return make(TokenType::RBrace,    "}");
+            case '#':
+            {
+                // start = pos - 1 to include the already-consumed '#' in the substring
+                size_t start = pos - 1;
+                while (!isAtEnd() && std::isalpha((unsigned char)peek()))
+                    advance();
+                std::string text = src.substr(start, pos - start); // e.g. "#include"
+                auto it = KEYWORDS.find(text);
+                if (it != KEYWORDS.end())
+                    return make(it->second, text);
+                return make(TokenType::Invalid, text); // unknown directive
+            }
 
             default:
                 return make(TokenType::Invalid, std::string(1, c));
