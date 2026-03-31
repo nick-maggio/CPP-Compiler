@@ -22,6 +22,15 @@ enum class TokenType {
     KeywordString,
     KeywordIf,
     KeywordElse,
+    KeywordWhile,
+    KeywordDo,
+    KeywordFor,
+    KeywordSwitch,
+    KeywordCase,
+    KeywordDefault,
+    KeywordBreak,
+    KeywordContinue,
+    KeywordCin,
     KeywordCout,
     KeywordReturn,
     KeywordInclude,
@@ -34,12 +43,20 @@ enum class TokenType {
     ComprEquals,     // ==
     NotEquals,       // !=
     Plus,            // +
+    Minus,           // -
+    Multiply,        // *
+    Divide,          // /
+    Modulo,          // %
     Negate,          // !
     LT,              // <
     GT,              // >
     LTE,             // <=
     GTE,             // >=
     InsertionOp,     // <<
+    ExtractionOp,    // >>
+    Colon,           // :
+    Increment,       // ++
+    Decrement,       // --
 
     // Delimiters
     Semicolon,       // ;
@@ -47,6 +64,7 @@ enum class TokenType {
     RParen,          // )
     LBrace,          // {
     RBrace,          // }
+    Comma,           // ,
 
     EndOfFile,
     Invalid
@@ -61,6 +79,15 @@ static const std::unordered_map<TokenType, std::string> TOKEN_NAMES = {
     { TokenType::KeywordString, "KeywordString" },
     { TokenType::KeywordIf,     "KeywordIf"     },
     { TokenType::KeywordElse,   "KeywordElse"   },
+    { TokenType::KeywordWhile,  "KeywordWhile"  },
+    { TokenType::KeywordDo,     "KeywordDo"     },
+    { TokenType::KeywordFor,    "KeywordFor"    },
+    { TokenType::KeywordSwitch, "KeywordSwitch" },
+    { TokenType::KeywordCase,   "KeywordCase"   },
+    { TokenType::KeywordDefault, "KeywordDefault" },
+    { TokenType::KeywordBreak,  "KeywordBreak"  },
+    { TokenType::KeywordContinue, "KeywordContinue" },
+    { TokenType::KeywordCin,    "KeywordCin"    },
     { TokenType::KeywordCout,   "KeywordCout"   },
     { TokenType::KeywordReturn,  "KeywordReturn" },
     { TokenType::KeywordInclude, "KeywordInclude" },
@@ -70,17 +97,26 @@ static const std::unordered_map<TokenType, std::string> TOKEN_NAMES = {
     { TokenType::ComprEquals,   "ComprEquals"   },
     { TokenType::NotEquals,     "NotEquals"     },
     { TokenType::Plus,          "Plus"          },
+    { TokenType::Minus,         "Minus"         },
+    { TokenType::Multiply,      "Asterisk"      },
+    { TokenType::Divide,         "Slash"        },
+    { TokenType::Modulo,         "Modulo"        },
     { TokenType::Negate,        "Negate"        },
     { TokenType::LT,            "LT"            },
     { TokenType::GT,            "GT"            },
     { TokenType::LTE,           "LTE"           },
     { TokenType::GTE,           "GTE"           },
     { TokenType::InsertionOp,   "InsertionOp"   },
+    { TokenType::ExtractionOp,  "ExtractionOp"  },
+    { TokenType::Colon,         "Colon"         },
+    { TokenType::Increment,     "Increment"     },
+    { TokenType::Decrement,     "Decrement"     },
     { TokenType::Semicolon,     "Semicolon"     },
     { TokenType::LParen,        "LParen"        },
     { TokenType::RParen,        "RParen"        },
     { TokenType::LBrace,        "LBrace"        },
     { TokenType::RBrace,        "RBrace"        },
+    { TokenType::Comma,         "Comma"         },
     { TokenType::EndOfFile,     "EndOfFile"     },
     { TokenType::Invalid,       "Invalid"       },
 };
@@ -91,6 +127,15 @@ static const std::unordered_map<std::string, TokenType> KEYWORDS = {
     { "string", TokenType::KeywordString },
     { "if",   TokenType::KeywordIf   },
     { "else", TokenType::KeywordElse },
+    { "while", TokenType::KeywordWhile },
+    { "do",    TokenType::KeywordDo    },
+    { "for",   TokenType::KeywordFor   },
+    { "switch", TokenType::KeywordSwitch },
+    { "case",   TokenType::KeywordCase   },
+    { "default", TokenType::KeywordDefault },
+    { "break",  TokenType::KeywordBreak  },
+    { "continue", TokenType::KeywordContinue },
+    { "cin",   TokenType::KeywordCin   },
     { "cout", TokenType::KeywordCout },
     { "return", TokenType::KeywordReturn },
     { "#include", TokenType::KeywordInclude },
@@ -240,7 +285,7 @@ private:
             advance();
 
         
-        //  We consume '.' and any following digits to support all decimal forms.
+        //  Consume '.' and any following digits to support all decimal forms.
         if (!isAtEnd() && peek() == '.') {
             advance(); // consume '.'
             while (!isAtEnd() && std::isdigit((unsigned char)peek()))
@@ -301,14 +346,29 @@ private:
                       return make(TokenType::LT, "<");
 
             case '>': if (peek() == '=') { advance(); return make(TokenType::GTE,          ">="); }
+                      if (peek() == '>') { advance(); return make(TokenType::ExtractionOp, ">>"); }
                       return make(TokenType::GT, ">");
 
-            case '+': return make(TokenType::Plus,      "+");
+            case '+': 
+            {
+                if (peek() == '+') { advance(); return make(TokenType::Increment, "++"); }
+                return make(TokenType::Plus, "+");
+            }
+            case '-': 
+            {
+                if (peek() == '-') { advance(); return make(TokenType::Decrement, "--"); }
+                return make(TokenType::Minus, "-");
+            }
+            case '*': return make(TokenType::Multiply,  "*");
+            case '/': return make(TokenType::Divide,    "/");
+            case '%': return make(TokenType::Modulo,    "%"); 
             case ';': return make(TokenType::Semicolon, ";");
             case '(': return make(TokenType::LParen,    "(");
             case ')': return make(TokenType::RParen,    ")");
             case '{': return make(TokenType::LBrace,    "{");
             case '}': return make(TokenType::RBrace,    "}");
+            case ',': return make(TokenType::Comma,     ",");
+            case ':': return make(TokenType::Colon,     ":");
             case '#':
             {
                 // start = pos - 1 to include the already-consumed '#' in the substring
