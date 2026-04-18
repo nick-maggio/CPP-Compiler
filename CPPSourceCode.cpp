@@ -59,11 +59,7 @@ int main() {
             continue;
         }
     }
-
-    // do-while test
-    do {
-        a = a - 1;
-    } while (a > 0);
+    
 
     // for test
     for (int i = 0, j = 3; i < j; i = i + 1) {
