@@ -20,18 +20,21 @@ The lexer and parser are fully implemented. The AST printer displays the parsed 
 - Support for more C++ features incrementally (function calls, multi-variable declarations, etc.)
 
 ## Repository Structure
+
+```
 CPP-Compiler/
 ├── main.cpp               – Entry point: lexes, parses, and prints the AST
-├── CPPSourceCode.cpp      – Sample source code for your testing. Point the compiler at any .cpp file
+├── CPPSourceCode.cpp      – Sample source for testing
 ├── token.h                – TokenType enum, Token struct, KEYWORDS map, tokenTypeName()
 ├── Lexer/
 │   ├── lexer.h            – Lexer class declaration
 │   └── lexer.cpp          – Lexer method implementations
 └── Parser/
-├── ast.h              – AST node structs
-├── parser.h           – Parser class declaration
-├── parser.cpp         – Recursive descent parser implementation
-└── printer.h          – AST pretty-printer
+    ├── ast.h              – AST node structs
+    ├── parser.h           – Parser class declaration
+    ├── parser.cpp         – Recursive descent parser implementation
+    └── printer.h          – AST pretty-printer
+```
 
 ## Build
 
