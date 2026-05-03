@@ -5,6 +5,7 @@
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
 #include "Parser/printer.h"
+#include "SemanticAnalysis/semantic.h"
 
 static std::string readFile(const std::string& path) {
   std::ifstream file(path, std::ios::binary);
@@ -37,6 +38,20 @@ int main(int argc, char* argv[]) {
   Parser parser(std::move(tokens));
   auto ast = parser.parse();
 
+  std::cout << "=== AST ===\n";
   printNode(ast.get());
+
+  std::cout << "\n=== Semantic Analysis ===\n";
+  SemanticAnalyzer sema;
+  bool ok = sema.analyze(ast.get());
+
+  if (ok) {
+    std::cout << "No errors found in code.\n";
+  }
+  else {
+    for (const auto& err : sema.errors())
+      std::cerr << "[Error]" << err.message << '\n';
+    return 1;
+  }
   return 0;
 }

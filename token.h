@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <unordered_map>
 
 // Token types produced by the lexer and consumed by the parser.
 enum class TokenType {

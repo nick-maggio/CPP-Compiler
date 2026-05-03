@@ -10,20 +10,20 @@ static std::string indentStr(int indent) {
 }
 
 static void printNumberLit(const NumberLit* node, int indent) {
-  std::cout << "-" << indentStr(indent) << "↳ Number (" << node->value << ")\n";
+  std::cout << "-" << indentStr(indent) << "-> Number (" << node->value << ")\n";
 }
 
 static void printStringLit(const StringLit* node, int indent) {
-  std::cout << "-" << indentStr(indent) << "↳ String (\"" << node->value << "\")\n";
+  std::cout << "-" << indentStr(indent) << "-> String (\"" << node->value << "\")\n";
 }
 
 static void printIdentifier(const Identifier* node, int indent) {
-  std::cout << "-" << indentStr(indent) << "↳ Variable (" << node->value << ")\n";
+  std::cout << "-" << indentStr(indent) << "-> Variable (" << node->value << ")\n";
 }
 
 static void printAssignExpr(const AssignExpr* node, int indent) {
   std::cout << indentStr(indent) << "AssignExpr (" << node->name << ")\n";
-  std::cout << indentStr(indent + 1) << "↳ value:\n";
+  std::cout << indentStr(indent + 1) << "-> value:\n";
   printNode(node->value.get(), indent + 2);
 }
 
@@ -34,63 +34,63 @@ static void printUnaryExpr(const UnaryExpr* node, int indent) {
 
 static void printBinaryExpr(const BinaryExpr* node, int indent) {
   std::cout << "-" << indentStr(indent) << "Operation (" << node->op << ")\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ left:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> left:\n";
   printNode(node->left.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ right:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> right:\n";
   printNode(node->right.get(), indent + 2);
 }
 
 static void printVarDecl(const VarDecl* node, int indent) {
   std::cout << "-" << indentStr(indent) << "Variable Declared: (" << node->type << " " << node->name << ")\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ initialized as:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> initialized as:\n";
   printNode(node->init.get(), indent + 2);
 }
 
 static void printIfStmt(const IfStmt* node, int indent) {
   std::cout << "-" << indentStr(indent) << "If Statement\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ condition:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> condition:\n";
   printNode(node->cond.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ then:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> then:\n";
   printNode(node->thenDo.get(), indent + 2);
   if (node->elseDo) {
-    std::cout << "-" << indentStr(indent + 1) << "↳ else:\n";
+    std::cout << "-" << indentStr(indent + 1) << "-> else:\n";
     printNode(node->elseDo.get(), indent + 2);
   }
 }
 
 static void printWhileStmt(const WhileLoop* node, int indent) {
   std::cout << "-" << indentStr(indent) << "While Loop\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ cond:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> cond:\n";
   printNode(node->cond.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ body:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> body:\n";
   printNode(node->body.get(), indent + 2);
 }
 
 static void printForStmt(const ForLoop* node, int indent) {
   std::cout << "-" << indentStr(indent) << "ForStmt\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ initialize:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> initialize:\n";
   printNode(node->init.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ condition:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> condition:\n";
   printNode(node->cond.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ step:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> step:\n";
   printNode(node->step.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ body:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> body:\n";
   printNode(node->body.get(), indent + 2);
 }
 
 static void printDoWhileStmt(const DoWhileLoop* node, int indent) {
   std::cout << "-" << indentStr(indent) << "DoWhileLoop\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ body:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> body:\n";
   printNode(node->body.get(), indent + 2);
-  std::cout << "-" << indentStr(indent + 1) << "↳ cond:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> cond:\n";
   printNode(node->cond.get(), indent + 2);
 }
 
 static void printCaseStmt(const CaseStmt* node, int indent) {
   if (node->value) {
-    std::cout << "-" << indentStr(indent) << "↳ Case:\n";
+    std::cout << "-" << indentStr(indent) << "-> Case:\n";
   } else {
-    std::cout << "-" << indentStr(indent) << "↳ Default:\n";
+    std::cout << "-" << indentStr(indent) << "-> Default:\n";
   }
 
   if (node->value) {
@@ -132,18 +132,18 @@ static void printParamDecl(const ParamDecl* node, int indent) {
 static void printFunctionDecl(const FunctionDecl* node, int indent) {
   std::cout << "-" << indentStr(indent) << "FunctionDecl (" << node->returnType << " " << node->name << ")\n";
   if (!node->params.empty()) {
-    std::cout << "-" << indentStr(indent + 1) << "↳ params:\n";
+    std::cout << "-" << indentStr(indent + 1) << "-> params:\n";
     for (const auto& p : node->params) {
       printNode(p.get(), indent + 2);
     }
   }
-  std::cout << "-" << indentStr(indent + 1) << "↳ body:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> body:\n";
   printNode(node->body.get(), indent + 2);
 }
 
 static void printReturnStmt(const ReturnStmt* node, int indent) {
   std::cout << "-" << indentStr(indent) << "Return\n";
-  std::cout << "-" << indentStr(indent + 1) << "↳ value:\n";
+  std::cout << "-" << indentStr(indent + 1) << "-> value:\n";
   printNode(node->value.get(), indent + 2);
 }
 

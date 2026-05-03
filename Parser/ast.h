@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <vector>
 
 // AST nodes for the currently supported C++ subset.
 struct ASTNode {
